@@ -1,0 +1,32 @@
+# IDE and OS files
+.DS_Store
+.idea/
+*.suo
+*.user
+*.sln.docstates
+
+# Build directories
+dist/
+build/
+
+# Log files
+*.log
+logs/
+
+# Dependency directories
+node_modules/
+**/node_modules/
+
+# Next.js specific
+.next/
+out/
+
+# Environment files
+.env
+.env*.local
+*.env.local
+!.env.example
+
+# Other
+coverage/
+*.tgz
