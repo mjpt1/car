@@ -228,7 +228,13 @@ const options = {
     },
   },
   // Path to the API docs (routes files)
-  apis: ['./src/modules/auth/auth.routes.js', './src/modules/users/user.routes.js', './src/modules/drivers/driver.routes.js'],
+  apis: [
+    './src/modules/auth/auth.routes.js',
+    './src/modules/users/user.routes.js',
+    './src/modules/drivers/driver.routes.js',
+    './src/modules/trips/trip.routes.js',
+    './src/modules/bookings/booking.routes.js'
+  ],
 };
 
 const swaggerSpec = swaggerJsdoc(options);

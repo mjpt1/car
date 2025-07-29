@@ -14,14 +14,18 @@ app.use(express.json()); // For parsing application/json
 const authRoutes = require('./modules/auth/auth.routes');
 const userRoutes = require('./modules/users/user.routes');
 const driverRoutes = require('./modules/drivers/driver.routes');
+const tripRoutes = require('./modules/trips/trip.routes');
+const bookingRoutes = require('./modules/bookings/booking.routes');
 
 // Swagger UI
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger.config');
 
 app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes); // For user profile (e.g., /api/users/profile)
-app.use('/api/drivers', driverRoutes); // For driver specific actions (e.g., /api/drivers/apply, /api/drivers/documents/upload)
+app.use('/api/users', userRoutes);
+app.use('/api/drivers', driverRoutes);
+app.use('/api/trips', tripRoutes);
+app.use('/api/bookings', bookingRoutes);
 
 // Swagger API documentation endpoint
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
