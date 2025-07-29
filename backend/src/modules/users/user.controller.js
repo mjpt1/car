@@ -47,7 +47,19 @@ const updateMyProfile = async (req, res, next) => {
   }
 };
 
+const handleGetDashboardData = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const dashboardData = await userService.getDashboardData(userId);
+    res.status(200).json(dashboardData);
+  } catch (error) {
+    console.error('Get Dashboard Data Error:', error);
+    res.status(500).json({ message: 'Failed to retrieve dashboard data.', details: error.message });
+  }
+};
+
 module.exports = {
   getMyProfile,
   updateMyProfile,
+  handleGetDashboardData,
 };

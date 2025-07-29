@@ -161,4 +161,47 @@ router.get(
     bookingController.handleGetMyBookings
 );
 
+/**
+ * @swagger
+ * /bookings/{bookingId}/cancel:
+ *   post:
+ *     summary: Cancel a booking
+ *     tags: [Bookings]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: bookingId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The ID of the booking to cancel.
+ *     responses:
+ *       200:
+ *         description: Booking cancelled successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessMessage'
+ *       400:
+ *         description: Bad request (e.g., booking cannot be cancelled due to policy).
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Unauthorized.
+ *       403:
+ *         description: Forbidden (user does not own this booking).
+ *       404:
+ *         description: Booking not found.
+ *       500:
+ *         description: Internal server error.
+ */
+router.post(
+    '/:bookingId/cancel',
+    authenticateToken,
+    bookingController.handleCancelBooking
+);
+
 module.exports = router;

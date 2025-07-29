@@ -2,10 +2,10 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../ui/Card';
-import { CalendarDays, Clock, DollarSign, MapPin, Ticket, Users, AlertTriangle, CheckCircle } from 'lucide-react';
-import Button from '../ui/Button'; // For potential cancel button later
+import { CalendarDays, Clock, DollarSign, MapPin, Ticket, Users, AlertTriangle, CheckCircle, Star } from 'lucide-react';
+import Button from '../ui/Button';
 
-const BookingCard = ({ booking }) => {
+const BookingCard = ({ booking, onCancelClick, onRateClick }) => {
   if (!booking) return null;
 
   const formatTime = (dateTime) => dateTime ? new Date(dateTime).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit', hour12: false }) : 'نامشخص';
@@ -67,12 +67,21 @@ const BookingCard = ({ booking }) => {
             </p>
         </div>
       </CardContent>
-      {/* Footer can be used for actions like "Cancel Booking" or "View Details" if a separate detail page exists */}
-      {/* <CardFooter>
-        {booking.booking_status === 'confirmed' && (
-            <Button variant="destructive" size="sm" onClick={() => alert('Cancel booking ' + booking.booking_id)}>لغو رزرو</Button>
+      <CardFooter className="flex justify-end space-x-2 rtl:space-x-reverse">
+        {/* Show Cancel button if the booking is confirmed and in the future */}
+        {(booking.booking_status === 'confirmed' || booking.booking_status === 'pending_payment') && new Date(booking.departure_time) > new Date() && (
+            <Button variant="destructive" size="sm" onClick={() => onCancelClick(booking.booking_id)}>
+                لغو رزرو
+            </Button>
         )}
-      </CardFooter> */}
+        {/* Show Rate button if the booking is completed */}
+        {booking.booking_status === 'completed' && (
+             <Button variant="outline" size="sm" onClick={() => onRateClick(booking.trip_id)}>
+                <Star size={14} className="ml-1"/>
+                امتیاز دهید
+            </Button>
+        )}
+      </CardFooter>
     </Card>
   );
 };

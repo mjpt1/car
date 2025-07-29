@@ -144,7 +144,87 @@ const getMyBookings = async (userId) => {
 
 // TODO: Add cancelBooking service (handles seat status updates, potential refunds logic later)
 
+const cancelBooking = async (userId, bookingId) => {
+  const client = await db.pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // 1. Find the booking and verify ownership and status
+    const { rows: bookingRows } = await client.query(
+      'SELECT id, user_id, trip_id, status FROM bookings WHERE id = $1 FOR UPDATE',
+      [bookingId]
+    );
+    if (bookingRows.length === 0) {
+      throw new Error('Booking not found.');
+    }
+    const booking = bookingRows[0];
+    if (booking.user_id !== userId) {
+      // In a real app, an admin might be able to cancel, but for now, only the user can.
+      throw new Error('Forbidden: You are not authorized to cancel this booking.');
+    }
+    if (booking.status !== 'confirmed' && booking.status !== 'pending_payment') {
+      throw new Error(`Cannot cancel a booking with status: ${booking.status}.`);
+    }
+
+    // 2. Check cancellation policy (e.g., cannot cancel 24 hours before departure)
+    const { rows: tripRows } = await client.query('SELECT departure_time FROM trips WHERE id = $1', [booking.trip_id]);
+    const departureTime = new Date(tripRows[0].departure_time);
+    const now = new Date();
+    const hoursBeforeDeparture = (departureTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+    // Example policy: Cannot cancel if less than 24 hours to departure
+    if (hoursBeforeDeparture < 24) {
+      throw new Error('Cancellation failed: Cannot cancel a trip less than 24 hours before departure.');
+    }
+
+    // 3. Update booking status
+    await client.query(
+      "UPDATE bookings SET status = 'cancelled_by_user' WHERE id = $1",
+      [bookingId]
+    );
+
+    // 4. Find all seats associated with this booking and make them available again
+    const { rows: bookingItems } = await client.query(
+      'SELECT seat_id FROM booking_items WHERE booking_id = $1',
+      [bookingId]
+    );
+    const seatIdsToRelease = bookingItems.map(item => item.seat_id);
+
+    if (seatIdsToRelease.length > 0) {
+      await client.query(
+        "UPDATE seats SET status = 'available', user_id = NULL, booking_id = NULL WHERE id = ANY($1::int[])",
+        [seatIdsToRelease]
+      );
+
+      // 5. Update available_seats count on the trip
+      await client.query(
+        'UPDATE trips SET available_seats = available_seats + $1 WHERE id = $2',
+        [seatIdsToRelease.length, booking.trip_id]
+      );
+    }
+
+    // TODO: Trigger a notification to the driver
+    // const io = getIoInstance(); // Needs a way to access io
+    // io.to(`user:${driverUserId}`).emit(...)
+
+    await client.query('COMMIT');
+    return { success: true, message: 'Booking cancelled successfully.' };
+
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error(`Error cancelling booking ${bookingId}:`, error);
+    if (error.message.startsWith('Forbidden') || error.message.startsWith('Cannot cancel') || error.message.startsWith('Cancellation failed')) {
+        throw error;
+    }
+    throw new Error(`Failed to cancel booking: ${error.message}`);
+  } finally {
+    client.release();
+  }
+};
+
+
 module.exports = {
   createBooking,
   getMyBookings,
+  cancelBooking,
 };

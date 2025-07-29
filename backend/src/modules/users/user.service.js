@@ -59,7 +59,66 @@ const updateUserProfile = async (userId, profileData) => {
   return rows[0];
 };
 
+const getDashboardData = async (userId) => {
+    const client = await db.pool.connect();
+    try {
+        // Common data for both passengers and drivers
+        const userQuery = 'SELECT first_name, last_name, email FROM users WHERE id = $1';
+        const userRes = await client.query(userQuery, [userId]);
+        const userInfo = userRes.rows[0];
+
+        // Passenger-specific data
+        const bookingsQuery = `
+            SELECT
+                COUNT(*) as total_bookings,
+                COUNT(CASE WHEN b.status = 'confirmed' AND t.departure_time > NOW() THEN 1 END) as upcoming_bookings,
+                COUNT(CASE WHEN b.status = 'completed' THEN 1 END) as completed_bookings
+            FROM bookings b
+            JOIN trips t ON b.trip_id = t.id
+            WHERE b.user_id = $1;
+        `;
+        const bookingsRes = await client.query(bookingsQuery, [userId]);
+        const passengerData = bookingsRes.rows[0];
+
+        // Driver-specific data
+        let driverData = null;
+        const driverQuery = 'SELECT id, status as driver_status FROM drivers WHERE user_id = $1';
+        const driverRes = await client.query(driverQuery, [userId]);
+
+        if (driverRes.rows.length > 0) {
+            const driver = driverRes.rows[0];
+            const driverTripsQuery = `
+                SELECT
+                    COUNT(*) as total_trips,
+                    COUNT(CASE WHEN status = 'scheduled' THEN 1 END) as upcoming_trips,
+                    COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed_trips
+                FROM trips
+                WHERE driver_id = $1;
+            `;
+            const driverTripsRes = await client.query(driverTripsQuery, [driver.id]);
+            driverData = {
+                ...driver,
+                ...driverTripsRes.rows[0]
+            };
+        }
+
+        return {
+            userInfo,
+            passengerData,
+            driverData, // This will be null if the user is not a driver
+        };
+
+    } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        throw new Error('Failed to fetch dashboard data.');
+    } finally {
+        client.release();
+    }
+};
+
+
 module.exports = {
   getUserProfile,
   updateUserProfile,
+  getDashboardData,
 };

@@ -99,4 +99,52 @@ router.route('/profile')
     .get(authenticateToken, userController.getMyProfile)
     .put(authenticateToken, validate(updateUserProfileSchema), userController.updateMyProfile);
 
+/**
+ * @swagger
+ * /users/dashboard:
+ *   get:
+ *     summary: Get aggregated data for the user's dashboard
+ *     tags: [User Profile]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved dashboard data.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 userInfo:
+ *                   type: object
+ *                   properties:
+ *                     first_name: { type: string, nullable: true }
+ *                     last_name: { type: string, nullable: true }
+ *                     email: { type: string, nullable: true }
+ *                 passengerData:
+ *                   type: object
+ *                   properties:
+ *                     total_bookings: { type: string, example: "5" }
+ *                     upcoming_bookings: { type: string, example: "2" }
+ *                     completed_bookings: { type: string, example: "3" }
+ *                 driverData:
+ *                   type: object
+ *                   nullable: true
+ *                   properties:
+ *                     id: { type: integer }
+ *                     driver_status: { type: string }
+ *                     total_trips: { type: string, example: "10" }
+ *                     upcoming_trips: { type: string, example: "4" }
+ *                     completed_trips: { type: string, example: "6" }
+ *       401:
+ *         description: Unauthorized.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get(
+    '/dashboard',
+    authenticateToken,
+    userController.handleGetDashboardData
+);
+
 module.exports = router;

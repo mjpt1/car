@@ -35,7 +35,29 @@ const handleGetMyBookings = async (req, res) => {
   }
 };
 
+const handleCancelBooking = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { bookingId } = req.params;
+    const result = await bookingService.cancelBooking(userId, parseInt(bookingId, 10));
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Cancel Booking Error:', error);
+    if (error.message.startsWith('Forbidden')) {
+      return res.status(403).json({ message: error.message });
+    }
+    if (error.message.startsWith('Booking not found')) {
+      return res.status(404).json({ message: error.message });
+    }
+    if (error.message.startsWith('Cannot cancel') || error.message.startsWith('Cancellation failed')) {
+      return res.status(400).json({ message: error.message });
+    }
+    res.status(500).json({ message: 'Failed to cancel booking.', details: error.message });
+  }
+};
+
 module.exports = {
   handleCreateBooking,
   handleGetMyBookings,
+  handleCancelBooking,
 };

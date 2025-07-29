@@ -21,13 +21,12 @@ export const getMyBookings = async () => {
   }
 };
 
-// cancelBooking might be added later
-// export const cancelBooking = async (bookingId) => {
-//   try {
-//     const response = await apiClient.post(`/bookings/${bookingId}/cancel`);
-//     return response.data;
-//   } catch (error) {
-//     console.error(`Error cancelling booking ${bookingId}:`, error.response?.data || error.message);
-//     throw error.response?.data || new Error('Failed to cancel booking');
-//   }
-// };
+export const cancelBooking = async (bookingId) => {
+  try {
+    const response = await apiClient.post(`/bookings/${bookingId}/cancel`);
+    return response.data; // Expected: { success: true, message: '...' }
+  } catch (error) {
+    console.error(`Error cancelling booking ${bookingId}:`, error.response?.data || error.message);
+    throw error.response?.data || new Error('Failed to cancel booking');
+  }
+};
