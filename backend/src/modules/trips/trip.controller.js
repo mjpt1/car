@@ -43,8 +43,21 @@ const handleGetTripDetails = async (req, res) => {
   }
 };
 
+const handleGetChatHistory = async (req, res) => {
+  try {
+    const { tripId } = req.params;
+    // TODO: Add validation to ensure user is part of this trip
+    const chatHistory = await tripService.getChatHistory(parseInt(tripId, 10));
+    res.status(200).json(chatHistory);
+  } catch (error) {
+    console.error('Get Chat History Error:', error);
+    res.status(500).json({ message: 'Failed to get chat history.', details: error.message });
+  }
+};
+
 module.exports = {
   handleCreateTrip,
   handleSearchTrips,
   handleGetTripDetails,
+  handleGetChatHistory,
 };

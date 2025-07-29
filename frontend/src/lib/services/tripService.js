@@ -32,3 +32,13 @@ export const createTrip = async (tripData) => {
     throw error.response?.data || new Error('Failed to create trip');
   }
 };
+
+export const getChatHistory = async (tripId) => {
+  try {
+    const response = await apiClient.get(`/trips/${tripId}/chat`);
+    return response.data; // Expected to be an array of chat messages
+  } catch (error) {
+    console.error(`Error fetching chat history for trip ${tripId}:`, error.response?.data || error.message);
+    throw error.response?.data || new Error('Failed to fetch chat history');
+  }
+};

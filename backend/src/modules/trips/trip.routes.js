@@ -249,4 +249,101 @@ router.get(
     tripController.handleGetTripDetails
 );
 
+/**
+ * @swagger
+ * /trips/{tripId}/chat:
+ *   get:
+ *     summary: Get chat history for a specific trip
+ *     tags: [Trips, Chat]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: tripId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The ID of the trip.
+ *     responses:
+ *       200:
+ *         description: An array of chat messages.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object # Define ChatMessage schema in swagger.config.js if needed
+ *                 properties:
+ *                   id: { type: integer }
+ *                   trip_id: { type: integer }
+ *                   sender_id: { type: integer }
+ *                   message_text: { type: string }
+ *                   file_url: { type: string, nullable: true }
+ *                   created_at: { type: string, format: date-time }
+ *                   sender: { type: object, properties: { id: {type: integer}, first_name: {type: string}, last_name: {type: string} } }
+ *       401:
+ *         description: Unauthorized.
+ *       403:
+ *         description: Forbidden (user is not part of this trip).
+ *       500:
+ *         description: Internal server error.
+ */
+router.get(
+    '/:tripId/chat',
+    authenticateToken,
+    // TODO: Add middleware to authorize if user is part of the trip
+    tripController.handleGetChatHistory
+);
+
+
+// --- Test Route for Notifications ---
+/**
+ * @swagger
+ * /trips/{tripId}/test-notification:
+ *   post:
+ *     summary: Send a test notification to a trip room (for development)
+ *     tags: [Trips, Test]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: tripId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               message:
+ *                 type: string
+ *                 example: "This is a test notification for trip occupants."
+ *               status:
+ *                 type: string
+ *                 example: "delayed"
+ *     responses:
+ *       200:
+ *         description: Notification sent successfully.
+ */
+router.post('/:tripId/test-notification', authenticateToken, (req, res) => {
+    const { tripId } = req.params;
+    const { message, status } = req.body;
+    const io = req.app.get('socketio'); // Get io instance from app
+    if (io) {
+        const roomName = `trip:${tripId}`;
+        io.to(roomName).emit('tripStatusUpdate', {
+            tripId,
+            status: status || 'updated',
+            message: message || `A test update for trip ${tripId}.`
+        });
+        res.status(200).json({ success: true, message: `Test notification sent to room ${roomName}` });
+    } else {
+        res.status(500).json({ success: false, message: 'Socket.IO not initialized.' });
+    }
+});
+
+
 module.exports = router;

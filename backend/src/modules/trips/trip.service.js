@@ -212,8 +212,44 @@ const getTripDetails = async (tripId) => {
 };
 
 
+const getChatHistory = async (tripId) => {
+  const query = `
+    SELECT
+      cm.id,
+      cm.trip_id,
+      cm.sender_id,
+      cm.message_text,
+      cm.file_url,
+      cm.created_at,
+      u.first_name as sender_first_name,
+      u.last_name as sender_last_name
+    FROM chat_messages cm
+    JOIN users u ON cm.sender_id = u.id
+    WHERE cm.trip_id = $1
+    ORDER BY cm.created_at ASC;
+  `;
+  const { rows } = await db.query(query, [tripId]);
+
+  // Re-structure the sender info
+  return rows.map(row => ({
+    id: row.id,
+    trip_id: row.trip_id,
+    sender_id: row.sender_id,
+    message_text: row.message_text,
+    file_url: row.file_url,
+    created_at: row.created_at,
+    sender: {
+      id: row.sender_id,
+      first_name: row.sender_first_name,
+      last_name: row.sender_last_name,
+    }
+  }));
+};
+
+
 module.exports = {
   createTrip,
   searchTrips,
   getTripDetails,
+  getChatHistory,
 };

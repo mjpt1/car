@@ -9,6 +9,7 @@ import DocumentUploadForm from '../../../components/profile/DocumentUploadForm';
 import DocumentsList from '../../../components/profile/DocumentsList';
 import Spinner from '../../../components/ui/Spinner';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../../components/ui/Card';
+import DriverLocationSimulator from '../../../components/drivers/DriverLocationSimulator';
 
 export default function ProfilePage() {
   const { user, loading: authLoading } = useAuth();
@@ -86,19 +87,23 @@ export default function ProfilePage() {
             )}
 
             {driverProfile && ( // Show this section if driver profile exists (applied, pending, or approved)
-              <>
+              <div className="space-y-6">
                 {/* Display driver specific info if needed, like vehicle details */}
                 {driverProfile.vehicle_details && (
-                    <div className="mb-4 p-4 border rounded-md bg-gray-50">
+                    <div className="p-4 border rounded-md bg-gray-50">
                         <h4 className="font-semibold text-lg mb-2">اطلاعات خودرو:</h4>
                         <p>مدل: {driverProfile.vehicle_details.model || '-'}</p>
                         <p>پلاک: {driverProfile.vehicle_details.plate_number || '-'}</p>
-                        {/* Add other vehicle details here */}
                     </div>
                 )}
                 <DocumentUploadForm onUploadSuccess={handleUploadSuccess} />
                 <DocumentsList refreshTrigger={refreshDocumentsTrigger} />
-              </>
+
+                {/* Location Simulator for Testing */}
+                <div className="mt-6">
+                  <DriverLocationSimulator />
+                </div>
+              </div>
             )}
           </CardContent>
         </Card>

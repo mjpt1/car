@@ -10,6 +10,14 @@ import Spinner from '../../../components/ui/Spinner';
 import Button from '../../../components/ui/Button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../../../components/ui/Card';
 import { AlertCircle, CheckCircle2, CreditCard, MapPin, Clock, UserCircle, Users, Truck, Tag } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import ChatBox from '../../../components/chat/ChatBox';
+
+const LiveTripMap = dynamic(() => import('../../../components/trips/LiveTripMap'), {
+  ssr: false,
+  loading: () => <p className="text-center p-4">در حال بارگذاری نقشه...</p>,
+});
+
 
 export default function TripDetailsPage() {
   const params = useParams();
@@ -118,18 +126,36 @@ export default function TripDetailsPage() {
             </span>
           </CardTitle>
           <CardDescription className="text-sm text-gray-500 mt-1">
-            لطفاً صندلی(های) مورد نظر خود را از نقشه زیر انتخاب کنید.
+            موقعیت لحظه‌ای راننده را روی نقشه دنبال کرده و صندلی(های) خود را انتخاب کنید.
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-2">
-            <SeatPicker
-              tripDetails={tripDetails}
+        <CardContent>
+            {/* Live Map Section */}
+            <div className="mb-8">
+                <h3 className="text-xl font-semibold mb-3">موقعیت لحظه‌ای راننده</h3>
+                <div className="h-[400px] w-full rounded-lg overflow-hidden border">
+                    <LiveTripMap tripDetails={tripDetails} />
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                {/* Left Column: Seat Picker and Chat */}
+                <div className="lg:col-span-3 space-y-8">
+                    <SeatPicker
+                        tripDetails={tripDetails}
               selectedSeats={selectedSeats}
               onSeatSelect={handleSeatSelect}
             />
-          </div>
-          <div className="md:col-span-1 space-y-6">
+                    {isAuthenticated && (
+                        <div>
+                             <h3 className="text-xl font-semibold mb-3">گفتگو با راننده و سایر مسافران</h3>
+                            <ChatBox tripId={parseInt(tripId, 10)} />
+                        </div>
+                    )}
+                </div>
+
+                 {/* Right Column: Trip Info and Booking Summary */}
+                 <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="text-xl">اطلاعات سفر</CardTitle>

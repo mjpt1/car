@@ -42,6 +42,26 @@ app.use((err, req, res, next) => {
   res.status(500).send('Something broke!');
 });
 
-app.listen(PORT, () => {
+const http = require('http');
+const { Server } = require("socket.io");
+const { initializeSocket } = require('./socket/socket.handler');
+
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: process.env.FRONTEND_URL || "http://localhost:3000", // Allow requests from your frontend
+    methods: ["GET", "POST"]
+  }
+});
+
+// Initialize Socket.IO logic
+initializeSocket(io);
+
+// Make io accessible to our router
+app.set('socketio', io);
+
+
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  console.log(`Socket.IO is listening for connections.`);
 });

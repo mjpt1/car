@@ -6,7 +6,7 @@ const options = {
     info: {
       title: 'Car Booking API',
       version: '1.0.0',
-      description: 'API documentation for the Car Booking System (Phase 1: Auth & Profile)',
+      description: 'API documentation for the Car Booking System',
       contact: {
         name: 'API Support',
         // url: 'http://www.example.com/support', // Optional
