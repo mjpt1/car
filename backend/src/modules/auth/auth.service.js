@@ -170,7 +170,7 @@ const loginUser = async (phoneNumber, password) => {
 
   // Password is correct, generate JWT
   const token = jwt.sign(
-    { userId: user.id, phoneNumber: user.phone_number },
+    { userId: user.id, phoneNumber: user.phone_number, role: user.role }, // Add role to JWT payload
     JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN || '1h' } // Token expiration time
   );
@@ -180,7 +180,7 @@ const loginUser = async (phoneNumber, password) => {
 
   return {
     token,
-    user: { id: user.id, phone_number: user.phone_number, created_at: user.created_at },
+    user: { id: user.id, phone_number: user.phone_number, role: user.role, created_at: user.created_at },
     message: 'Login successful.'
   };
 };

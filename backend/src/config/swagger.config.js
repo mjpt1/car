@@ -234,7 +234,8 @@ const options = {
     './src/modules/drivers/driver.routes.js',
     './src/modules/trips/trip.routes.js',
     './src/modules/bookings/booking.routes.js',
-    './src/modules/ratings/rating.routes.js'
+    './src/modules/ratings/rating.routes.js',
+    './src/modules/admin/admin.routes.js'
   ],
 };
 

@@ -17,6 +17,7 @@ const driverRoutes = require('./modules/drivers/driver.routes');
 const tripRoutes = require('./modules/trips/trip.routes');
 const bookingRoutes = require('./modules/bookings/booking.routes');
 const ratingRoutes = require('./modules/ratings/rating.routes');
+const adminRoutes = require('./modules/admin/admin.routes');
 
 // Swagger UI
 const swaggerUi = require('swagger-ui-express');
@@ -28,6 +29,7 @@ app.use('/api/drivers', driverRoutes);
 app.use('/api/trips', tripRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/ratings', ratingRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Swagger API documentation endpoint
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

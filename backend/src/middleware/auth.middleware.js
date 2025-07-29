@@ -24,17 +24,23 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// Optional: Middleware to check for specific roles if you implement them later
-// const authorizeRole = (roles) => {
-//   return (req, res, next) => {
-//     if (!req.user || !roles.includes(req.user.role)) {
-//       return res.status(403).json({ message: 'Forbidden: Insufficient permissions.' });
-//     }
-//     next();
-//   };
-// };
+const authorizeRole = (allowedRoles) => {
+  return (req, res, next) => {
+    if (!req.user || !req.user.role) {
+      return res.status(403).json({ message: 'Forbidden: Role not available on token.' });
+    }
+
+    const userRole = req.user.role;
+
+    if (allowedRoles.includes(userRole)) {
+      next(); // User has the required role, proceed
+    } else {
+      return res.status(403).json({ message: 'Forbidden: You do not have sufficient permissions to access this resource.' });
+    }
+  };
+};
 
 module.exports = {
   authenticateToken,
-  // authorizeRole,
+  authorizeRole,
 };

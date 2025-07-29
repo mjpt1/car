@@ -1,7 +1,6 @@
 const express = require('express');
 const tripController = require('./trip.controller');
-const { authenticateToken } = require('../../middleware/auth.middleware');
-// const { authorizeRole } = require('../../middleware/auth.middleware'); // Assuming you have this
+const { authenticateToken, authorizeRole } = require('../../middleware/auth.middleware');
 const { validate } = require('../auth/auth.validation'); // General validator
 const { createTripSchema, searchTripsSchema } = require('./trip.validation');
 
@@ -150,7 +149,7 @@ const router = express.Router();
 router.post(
     '/',
     authenticateToken,
-    // authorizeRole(['admin']), // To be enabled when roles are fully implemented
+    authorizeRole(['admin']),
     validate(createTripSchema),
     tripController.handleCreateTrip
 );
