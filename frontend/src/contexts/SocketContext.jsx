@@ -37,12 +37,12 @@ export const SocketProvider = ({ children }) => {
       });
 
       newSocket.on('connect', () => {
-        console.log('Socket connected:', newSocket.id);
+        // console.log('Socket connected:', newSocket.id);
         setSocket(newSocket);
       });
 
       newSocket.on('disconnect', (reason) => {
-        console.log('Socket disconnected:', reason);
+        // console.log('Socket disconnected:', reason);
         setSocket(null);
       });
 

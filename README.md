@@ -86,10 +86,49 @@
 
 ## معماری و تکنولوژی‌ها
 
--   **Backend:** Node.js, Express.js, PostgreSQL, Socket.IO
--   **Frontend:** Next.js (App Router), React, TailwindCSS
--   **امنیت:** JWT, Helmet, CORS, express-rate-limit
+-   **Backend:**
+    -   **Framework:** Node.js, Express.js
+    -   **Database:** PostgreSQL
+    -   **Real-time:** Socket.IO
+    -   **Authentication:** JSON Web Tokens (JWT)
+    -   **Security:** Helmet, CORS, Express Rate Limit
+    -   **API Documentation:** Swagger/OpenAPI
+-   **Frontend:**
+    -   **Framework:** Next.js (App Router)
+    -   **Styling:** TailwindCSS
+    -   **State Management:** React Context API
+    -   **Form Handling:** React Hook Form with Zod resolver
+    -   **UI Components:** Custom components, Recharts (for charts), React-Leaflet (for maps)
 -   **Containerization:** Docker, Docker Compose
--   **مستندسازی API:** Swagger/OpenAPI
+
+## ساختار ماژول‌ها
+
+پروژه به صورت ماژولار طراحی شده تا توسعه و نگهداری آن آسان باشد.
+
+-   **ماژول‌های بک‌اند (`backend/src/modules`):**
+    -   `auth`: مدیریت ثبت‌نام، ورود و توکن‌ها.
+    -   `users`: مدیریت پروفایل کاربران.
+    -   `drivers`: مدیریت پروفایل رانندگان و مدارک.
+    -   `trips`: مدیریت سفرها و جستجو.
+    -   `bookings`: مدیریت فرآیند رزرو.
+    -   `payments`: مدیریت پرداخت‌ها (شبیه‌سازی شده).
+    -   `transactions`: مدیریت تراکنش‌ها.
+    -   `ratings`: مدیریت امتیازدهی.
+    -   `articles`, `categories`, `tags`: سیستم مدیریت محتوا.
+    -   `admin`: APIهای پنل مدیریت.
+    -   `reports`: APIهای گزارش‌گیری.
+-   **ماژول‌های فرانت‌اند (`frontend/src/`):**
+    -   `app`: مسیرهای برنامه (App Router).
+    -   `components`: کامپوننت‌های قابل استفاده مجدد.
+    -   `contexts`: برای مدیریت وضعیت‌های گلوبال (Auth, Socket).
+    -   `lib/services`: برای کپسوله کردن فراخوانی‌های API.
+
+## نحوه مشارکت (Contribution Guidelines)
+
+1.  از شاخه اصلی (`main` یا `master`) یک شاخه جدید برای فیچر یا باگ خود ایجاد کنید (مثلاً `feature/new-cool-feature` یا `fix/login-bug`).
+2.  تغییرات خود را اعمال کنید.
+3.  مطمئن شوید که کد شما از استانداردهای موجود در پروژه پیروی می‌کند.
+4.  پس از اتمام کار، یک Pull Request (PR) به شاخه اصلی ارسال کنید.
+5.  در توضیحات PR، تغییرات خود را به وضوح شرح دهید.
 
 *این مستندات به مرور و با پیشرفت پروژه تکمیل خواهد شد.*

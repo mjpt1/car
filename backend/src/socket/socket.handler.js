@@ -20,7 +20,7 @@ const initializeSocket = (io) => {
   });
 
   io.on('connection', (socket) => {
-    console.log(`User connected: ${socket.id}, UserID: ${socket.user.userId}`);
+    // console.log(`User connected: ${socket.id}, UserID: ${socket.user.userId}`);
 
     // Join a personal room for this user to send direct notifications
     socket.join(`user:${socket.user.userId}`);
@@ -45,7 +45,7 @@ const initializeSocket = (io) => {
 
         const roomName = `trip:${tripId}`;
         socket.join(roomName);
-        console.log(`UserID ${socket.user.userId} joined room: ${roomName}`);
+        // console.log(`UserID ${socket.user.userId} joined room: ${roomName}`);
 
         // Acknowledge the join
         socket.emit('joinedTripRoom', { tripId, roomName, message: `Successfully joined room for trip ${tripId}` });
@@ -58,7 +58,7 @@ const initializeSocket = (io) => {
 
     // --- Disconnection ---
     socket.on('disconnect', () => {
-      console.log(`User disconnected: ${socket.id}, UserID: ${socket.user.userId}`);
+      // console.log(`User disconnected: ${socket.id}, UserID: ${socket.user.userId}`);
     });
 
     // --- Error Handling ---
