@@ -1,5 +1,7 @@
 const express = require('express');
 const adminController = require('./admin.controller');
+const transactionController = require('../transactions/transaction.controller');
+const reportRoutes = require('../reports/reports.routes');
 const { authenticateToken, authorizeRole } = require('../../middleware/auth.middleware');
 
 const router = express.Router();
@@ -191,6 +193,9 @@ router.post('/documents/:documentId/update-status', adminController.handleUpdate
  *         description: A paginated list of all transactions.
  */
 router.get('/transactions', transactionController.handleListAllTransactions);
+
+// --- Reports ---
+router.use('/reports', reportRoutes);
 
 
 module.exports = router;

@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, Car, Map, Settings, LogOut, DollarSign } from 'lucide-react';
+import { LayoutDashboard, Users, Car, Map, Settings, LogOut, DollarSign, BarChart2 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 const navItems = [
@@ -12,6 +12,9 @@ const navItems = [
   { href: '/admin/drivers', label: 'مدیریت رانندگان', icon: Car },
   { href: '/admin/trips', label: 'مدیریت سفرها', icon: Map },
   { href: '/admin/transactions', label: 'تراکنش‌ها', icon: DollarSign },
+  { type: 'divider', label: 'گزارش‌ها' },
+  { href: '/admin/reports/bookings', label: 'گزارش رزروها', icon: BarChart2 },
+  { href: '/admin/reports/financial', label: 'گزارش مالی', icon: BarChart2 },
   // Add more items as needed
   // { href: '/admin/settings', label: 'تنظیمات', icon: Settings },
 ];
@@ -26,20 +29,29 @@ const Sidebar = () => {
         <Link href="/admin/dashboard">پنل ادمین</Link>
       </div>
       <nav className="flex-1 px-4 py-6 space-y-2">
-        {navItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`flex items-center px-4 py-2.5 rounded-lg transition-colors duration-200 ${
-              pathname === item.href
-                ? 'bg-brand-primary text-white'
-                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-            }`}
-          >
-            <item.icon className="w-5 h-5 ml-3" />
-            <span>{item.label}</span>
-          </Link>
-        ))}
+        {navItems.map((item, index) => {
+          if (item.type === 'divider') {
+            return (
+              <div key={`divider-${index}`} className="pt-4 pb-2">
+                <span className="px-4 text-xs font-semibold uppercase text-gray-400">{item.label}</span>
+              </div>
+            );
+          }
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex items-center px-4 py-2.5 rounded-lg transition-colors duration-200 ${
+                pathname.startsWith(item.href) // Use startsWith for active state on sub-pages
+                  ? 'bg-brand-primary text-white'
+                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+              }`}
+            >
+              <item.icon className="w-5 h-5 ml-3" />
+              <span>{item.label}</span>
+            </Link>
+          );
+        })}
       </nav>
       <div className="px-4 py-4 border-t border-gray-700">
         <button
