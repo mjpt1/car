@@ -1,153 +1,95 @@
 # سیستم رزرو آنلاین خودرو (Car Booking System)
 
-این پروژه یک سیستم جامع برای رزرو آنلاین خودرو است که شامل پنل‌های کاربری برای مسافر، راننده و مدیر می‌باشد.
+این پروژه یک سیستم جامع برای رزرو آنلاین خودرو است که شامل پنل‌های کاربری برای مسافر، راننده و مدیر می‌باشد. این پروژه با معماری ماژولار و با تمرکز بر امنیت، عملکرد و قابلیت توسعه طراحی شده است.
 
 ## ساختار پروژه
 
 پروژه به دو بخش اصلی تقسیم می‌شود:
 
--   `backend/`: شامل API و منطق سمت سرور با استفاده از Node.js و Express.
+-   `backend/`: شامل API و منطق سمت سرور با استفاده از Node.js, Express, و PostgreSQL.
 -   `frontend/`: شامل رابط کاربری با استفاده از Next.js و TailwindCSS.
 
-## راه‌اندازی بخش بک‌اند (Backend Setup)
+## راه‌اندازی پروژه (روش پیشنهادی: Docker)
+
+ساده‌ترین راه برای راه‌اندازی کامل پروژه (دیتابیس، بک‌اند و فرانت‌اند) استفاده از Docker و Docker Compose است.
 
 ### پیش‌نیازها
 
--   Node.js (نسخه ۱۸ یا بالاتر پیشنهاد می‌شود)
--   npm یا yarn
--   PostgreSQL (یک دیتابیس فعال و در دسترس)
+-   Docker
+-   Docker Compose
 
-### مراحل راه‌اندازی
+### مراحل راه‌اندازی با Docker
 
-1.  **کلون کردن مخزن (در صورت نیاز):**
+1.  **کلون کردن مخزن:**
     ```bash
     git clone <repository-url>
     cd <project-folder>
     ```
 
-2.  **رفتن به پوشه بک‌اند:**
-    ```bash
-    cd backend
-    ```
-
-3.  **نصب وابستگی‌ها:**
-    ```bash
-    npm install
-    # یا اگر از yarn استفاده می‌کنید:
-    # yarn install
-    ```
-
-4.  **تنظیم متغیرهای محیطی:**
-    *   یک فایل `.env` در پوشه `backend` از روی فایل `backend/.env.example` (اگر وجود دارد) یا بر اساس نمونه زیر ایجاد کنید.
+2.  **ایجاد فایل متغیرهای محیطی:**
+    *   یک فایل `.env` در ریشه پروژه ایجاد کنید. می‌توانید از مقادیر پیش‌فرض زیر استفاده کنید یا آنها را تغییر دهید. **تغییر `JWT_SECRET` و `DB_PASSWORD` برای محیط production الزامی است.**
         ```dotenv
-        NODE_ENV=development
-        PORT=3001
+        # PostgreSQL Credentials
+        DB_USER=postgres
+        DB_PASSWORD=your_strong_password_here # یک رمز عبور قوی انتخاب کنید
+        DB_NAME=car_booking_db
 
-        # Database Configuration
-        DB_USER=your_postgres_user
-        DB_HOST=localhost
-        DB_NAME=car_rental_db # نام دیتابیس شما
-        DB_PASSWORD=your_postgres_password
-        DB_PORT=5432
-
-        # JWT Configuration
-        JWT_SECRET=your-super-secret-and-strong-jwt-key-at-least-32-chars-long
-        JWT_EXPIRES_IN=1h
-
-        # OTP Configuration
-        OTP_EXPIRATION_MINUTES=5
-
-        # Optional: Nodemailer configuration (if used for sending emails/OTP)
-        # MAIL_HOST=smtp.example.com
-        # MAIL_PORT=587
-        # MAIL_USER=your_email@example.com
-        # MAIL_PASS=your_email_password
-        # MAIL_FROM="Your App Name" <no-reply@example.com>
-        ```
-    *   **مهم:** مقادیر `DB_USER`, `DB_PASSWORD`, `DB_NAME` و `JWT_SECRET` را با مقادیر صحیح و امن جایگزین کنید.
-
-5.  **راه‌اندازی پایگاه داده PostgreSQL:**
-    *   اطمینان حاصل کنید که سرور PostgreSQL شما در حال اجرا است.
-    *   دیتابیس مشخص شده در `DB_NAME` (مثلاً `car_rental_db`) را ایجاد کنید.
-    *   اسکریپت‌های SQL زیر را برای ایجاد جداول اولیه در دیتابیس خود اجرا کنید:
-
-        ```sql
-        -- Table: users
-        CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
-            phone_number VARCHAR(20) UNIQUE NOT NULL,
-            password VARCHAR(255) NOT NULL,
-            otp VARCHAR(10),
-            otp_expires_at TIMESTAMP,
-            first_name VARCHAR(100),
-            last_name VARCHAR(100),
-            email VARCHAR(255) UNIQUE,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-
-        -- Function and Trigger to update 'updated_at' timestamp
-        CREATE OR REPLACE FUNCTION trigger_set_timestamp()
-        RETURNS TRIGGER AS $$
-        BEGIN
-          NEW.updated_at = NOW();
-          RETURN NEW;
-        END;
-        $$ LANGUAGE plpgsql;
-
-        CREATE TRIGGER set_timestamp_users
-        BEFORE UPDATE ON users
-        FOR EACH ROW
-        EXECUTE PROCEDURE trigger_set_timestamp();
-
-        -- Table: drivers
-        CREATE TABLE IF NOT EXISTS drivers (
-            id SERIAL PRIMARY KEY,
-            user_id INTEGER UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-            status VARCHAR(50) DEFAULT 'pending_approval', -- e.g., pending_approval, approved, rejected, suspended
-            vehicle_details JSONB,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-
-        CREATE TRIGGER set_timestamp_drivers
-        BEFORE UPDATE ON drivers
-        FOR EACH ROW
-        EXECUTE PROCEDURE trigger_set_timestamp();
-
-        -- Table: driver_documents
-        CREATE TABLE IF NOT EXISTS driver_documents (
-            id SERIAL PRIMARY KEY,
-            driver_id INTEGER NOT NULL REFERENCES drivers(id) ON DELETE CASCADE,
-            document_type VARCHAR(100) NOT NULL, -- e.g., license, vehicle_registration, insurance
-            file_path VARCHAR(255) NOT NULL,
-            file_name VARCHAR(255),
-            mime_type VARCHAR(100),
-            status VARCHAR(50) DEFAULT 'pending_review', -- e.g., pending_review, approved, rejected
-            uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            reviewed_at TIMESTAMP,
-            review_notes TEXT,
-            CONSTRAINT unique_driver_document_type UNIQUE (driver_id, document_type)
-        );
+        # Backend JWT Secret
+        JWT_SECRET=your_super_secret_and_strong_jwt_key_at_least_32_chars_long
         ```
 
-6.  **اجرای سرور بک‌اند:**
+3.  **ساخت و اجرای کانتینرها:**
+    *   دستور زیر را در ریشه پروژه اجرا کنید:
+        ```bash
+        docker-compose up --build -d
+        ```
+    *   پارامتر `--build` ایمیج‌ها را از روی `Dockerfile`ها می‌سازد.
+    *   پارامتر `-d` (detached mode) باعث می‌شود کانتینرها در پس‌زمینه اجرا شوند.
+
+4.  **اجرای اسکریپت‌های اولیه دیتابیس:**
+    *   پس از اینکه کانتینر `db` به طور کامل اجرا شد (ممکن است چند ثانیه طول بکشد)، باید جداول اولیه را ایجاد کنید. برای این کار می‌توانید به دیتابیس متصل شوید و اسکریپت‌های SQL موجود در بخش "راه‌اندازی دستی" را اجرا کنید، یا از دستور زیر استفاده کنید:
+        ```bash
+        docker-compose exec -T db psql -U $DB_USER -d $DB_NAME < path/to/initial_db_script.sql
+        ```
+        *(توجه: برای سادگی، فعلاً باید به صورت دستی به دیتابیس متصل شده و اسکریپت‌های SQL ارائه شده در فازهای مختلف را اجرا کنید).*
+
+5.  **دسترسی به برنامه:**
+    *   **فرانت‌اند:** `http://localhost:3000`
+    *   **بک‌اند API:** `http://localhost:3001`
+    *   **مستندات API (Swagger):** `http://localhost:3001/api-docs`
+
+6.  **متوقف کردن برنامه:**
     ```bash
-    npm start
-    # یا برای حالت توسعه با nodemon (اگر پیکربندی شده باشد):
-    # npm run dev
+    docker-compose down
     ```
-    سرور به طور پیش‌فرض روی پورت `3001` (یا پورت مشخص شده در `.env`) اجرا خواهد شد.
-
-### مستندات API
-
-پس از اجرای سرور بک‌اند، مستندات تعاملی API (Swagger UI) در آدرس زیر در دسترس خواهد بود:
-[http://localhost:3001/api-docs](http://localhost:3001/api-docs)
-
-## راه‌اندازی بخش فرانت‌اند (Frontend Setup)
-
-(دستورالعمل‌های راه‌اندازی فرانت‌اند در مراحل بعدی اضافه خواهد شد.)
 
 ---
+
+## راه‌اندازی دستی (بدون Docker)
+
+### راه‌اندازی بخش بک‌اند (Backend)
+
+1.  به پوشه `backend` بروید: `cd backend`
+2.  وابستگی‌ها را نصب کنید: `npm install`
+3.  یک فایل `.env` مشابه نمونه بالا (با جزئیات اتصال به دیتابیس خود) ایجاد کنید.
+4.  اسکریپت‌های SQL ارائه شده در هر فاز را در دیتابیس PostgreSQL خود اجرا کنید.
+5.  سرور را اجرا کنید: `npm start`
+
+### راه‌اندازی بخش فرانت‌اند (Frontend)
+
+1.  به پوشه `frontend` بروید: `cd frontend`
+2.  وابستگی‌ها را نصب کنید: `npm install`
+3.  (اختیاری) یک فایل `.env.local` برای بازنویسی متغیرهای محیطی مانند `NEXT_PUBLIC_API_BASE_URL` ایجاد کنید.
+4.  سرور توسعه را اجرا کنید: `npm run dev`
+
+---
+
+## معماری و تکنولوژی‌ها
+
+-   **Backend:** Node.js, Express.js, PostgreSQL, Socket.IO
+-   **Frontend:** Next.js (App Router), React, TailwindCSS
+-   **امنیت:** JWT, Helmet, CORS, express-rate-limit
+-   **Containerization:** Docker, Docker Compose
+-   **مستندسازی API:** Swagger/OpenAPI
 
 *این مستندات به مرور و با پیشرفت پروژه تکمیل خواهد شد.*
