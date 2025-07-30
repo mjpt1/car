@@ -5,8 +5,10 @@ import { useParams, useRouter } from 'next/navigation'; // For App Router
 import { useAuth } from '../../../contexts/AuthContext';
 import { getTripDetails } from '../../../lib/services/tripService';
 import { createBooking } from '../../../lib/services/bookingService';
+import { requestPayment } from '../../../lib/services/paymentService';
 import SeatPicker from '../../../components/trips/SeatPicker';
 import Spinner from '../../../components/ui/Spinner';
+import { toast } from 'react-toastify';
 import Button from '../../../components/ui/Button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../../../components/ui/Card';
 import { AlertCircle, CheckCircle2, CreditCard, MapPin, Clock, UserCircle, Users, Truck, Tag } from 'lucide-react';
@@ -28,8 +30,9 @@ export default function TripDetailsPage() {
   const [tripDetails, setTripDetails] = useState(null);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [pageError, setPageError] = useState(''); // Changed from 'error' to 'pageError' to avoid conflict
-  const [bookingStatus, setBookingStatus] = useState({ type: '', message: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false); // For booking/payment process
+  const [pageError, setPageError] = useState('');
+  const [bookingInfo, setBookingInfo] = useState(null); // To store successful booking info
 
   const fetchTripData = useCallback(async () => {
     if (!tripId) {
@@ -71,28 +74,39 @@ export default function TripDetailsPage() {
       return;
     }
     if (selectedSeats.length === 0) {
-      setBookingStatus({ type: 'error', message: 'لطفاً حداقل یک صندلی انتخاب کنید.' });
+      toast.error('لطفاً حداقل یک صندلی انتخاب کنید.');
       return;
     }
-    setBookingStatus({ type: '', message: '' });
-    setIsLoading(true);
+    setIsSubmitting(true);
     try {
       const bookingData = {
         trip_id: parseInt(tripId, 10),
         seat_ids: selectedSeats.map(s => s.id),
       };
       const result = await createBooking(bookingData);
-      setBookingStatus({ type: 'success', message: `رزرو شما با موفقیت ثبت شد (شماره رزرو: ${result.booking_id}). وضعیت: ${result.status}` });
-      setTimeout(() => {
-        router.push('/my-bookings');
-      }, 3000);
+      setBookingInfo(result); // Save booking info
+      toast.success(`رزرو شما با موفقیت ثبت شد (شماره رزرو: ${result.booking_id}). لطفاً پرداخت را تکمیل کنید.`);
+      // Don't redirect, show payment button instead
     } catch (err) {
       console.error("Booking failed:", err);
-      setBookingStatus({ type: 'error', message: err.message || 'خطا در ثبت رزرو. ممکن است صندلی‌ها توسط کاربر دیگری رزرو شده باشند.' });
-      fetchTripData();
+      toast.error(err.message || 'خطا در ثبت رزرو. ممکن است صندلی‌ها توسط کاربر دیگری رزرو شده باشند.');
+      fetchTripData(); // Refresh seats status
       setSelectedSeats([]);
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleProceedToPayment = async () => {
+    if (!bookingInfo) return;
+    setIsSubmitting(true);
+    try {
+        const paymentResult = await requestPayment(bookingInfo.booking_id);
+        // Redirect user to the payment gateway
+        window.location.href = paymentResult.payment_url;
+    } catch (err) {
+        toast.error(err.message || 'خطا در ایجاد درخواست پرداخت.');
+        setIsSubmitting(false);
     }
   };
 
@@ -197,23 +211,30 @@ export default function TripDetailsPage() {
                 </div>
               </CardContent>
               <CardFooter className="flex-col space-y-3">
-                {bookingStatus.message && (
-                  <div className={`p-3 rounded-md text-sm w-full text-center ${
-                    bookingStatus.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                  }`}>
-                    {bookingStatus.type === 'success' ? <CheckCircle2 className="inline ml-2"/> : <AlertCircle className="inline ml-2"/>}
-                    {bookingStatus.message}
-                  </div>
-                )}
-                <Button
-                  onClick={handleBooking}
-                  disabled={selectedSeats.length === 0 || isLoading || (bookingStatus.type === 'success')}
-                  className="w-full text-lg"
-                >
-                  {isLoading && bookingStatus.type !== 'success' ? <Spinner className="ml-2" size="sm"/> : <CreditCard className="ml-2" size={20}/>}
-                  {bookingStatus.type === 'success' ? 'در حال انتقال...' : (isAuthenticated ? 'تایید و ادامه' : 'ورود و ادامه')}
-                </Button>
-                 {!isAuthenticated && <p className="text-xs text-center text-gray-500">برای تکمیل رزرو باید وارد حساب خود شوید.</p>}
+                          {bookingInfo ? (
+                            <div className="w-full text-center">
+                               <div className="p-3 rounded-md text-sm w-full text-center bg-green-100 text-green-700 mb-3">
+                                  <CheckCircle2 className="inline ml-2"/>
+                                  رزرو شما با موفقیت ثبت شد. برای نهایی کردن، لطفاً پرداخت را انجام دهید.
+                               </div>
+                                <Button onClick={handleProceedToPayment} disabled={isSubmitting} className="w-full text-lg">
+                                    {isSubmitting ? <Spinner className="ml-2" size="sm"/> : <CreditCard className="ml-2" size={20}/>}
+                                    پرداخت نهایی
+                                </Button>
+                            </div>
+                          ) : (
+                            <>
+                              <Button
+                                  onClick={handleBooking}
+                                  disabled={selectedSeats.length === 0 || isSubmitting}
+                                  className="w-full text-lg"
+                              >
+                                  {isSubmitting ? <Spinner className="ml-2" size="sm"/> : <CheckCircle2 className="ml-2" size={20}/>}
+                                  {isAuthenticated ? 'تایید و ثبت اولیه' : 'ورود برای ثبت رزرو'}
+                              </Button>
+                              {!isAuthenticated && <p className="text-xs text-center text-gray-500">برای تکمیل رزرو باید وارد حساب خود شوید.</p>}
+                            </>
+                          )}
               </CardFooter>
             </Card>
           </div>

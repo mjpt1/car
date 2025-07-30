@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, Car, Map, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, Car, Map, Settings, LogOut, DollarSign } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 const navItems = [
@@ -11,6 +11,7 @@ const navItems = [
   { href: '/admin/users', label: 'مدیریت کاربران', icon: Users },
   { href: '/admin/drivers', label: 'مدیریت رانندگان', icon: Car },
   { href: '/admin/trips', label: 'مدیریت سفرها', icon: Map },
+  { href: '/admin/transactions', label: 'تراکنش‌ها', icon: DollarSign },
   // Add more items as needed
   // { href: '/admin/settings', label: 'تنظیمات', icon: Settings },
 ];

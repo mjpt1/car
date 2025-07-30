@@ -235,7 +235,9 @@ const options = {
     './src/modules/trips/trip.routes.js',
     './src/modules/bookings/booking.routes.js',
     './src/modules/ratings/rating.routes.js',
-    './src/modules/admin/admin.routes.js'
+    './src/modules/admin/admin.routes.js',
+    './src/modules/payments/payment.routes.js',
+    './src/modules/transactions/transaction.routes.js'
   ],
 };
 

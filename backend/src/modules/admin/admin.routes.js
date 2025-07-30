@@ -163,5 +163,34 @@ router.post('/drivers/:driverId/update-status', adminController.handleUpdateDriv
  */
 router.post('/documents/:documentId/update-status', adminController.handleUpdateDocumentStatus);
 
+// --- Transaction Management ---
+/**
+ * @swagger
+ * /admin/transactions:
+ *   get:
+ *     summary: Get a list of all transactions in the system
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer, default: 1 }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 10 }
+ *       - in: query
+ *         name: userId
+ *         schema: { type: integer }
+ *         description: "Filter transactions by a specific user ID."
+ *       - in: query
+ *         name: status
+ *         schema: { type: string, enum: [pending, completed, failed, cancelled] }
+ *     responses:
+ *       200:
+ *         description: A paginated list of all transactions.
+ */
+router.get('/transactions', transactionController.handleListAllTransactions);
+
 
 module.exports = router;
