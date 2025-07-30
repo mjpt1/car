@@ -6,7 +6,7 @@ const Card = React.forwardRef(
   ({ className, children, ...props }, ref) => (
   <div
     ref={ref}
-    className={`rounded-xl border bg-brand-surface text-card-foreground shadow-sm ${className}`}
+    className={`rounded-xl border border-gray-200/80 bg-brand-surface text-brand-secondary shadow-card ${className}`}
     {...props}
   >
     {children}
@@ -30,7 +30,7 @@ const CardTitle = React.forwardRef(
     ({ className, children, ...props }, ref) => (
   <h3
     ref={ref}
-    className={`text-2xl font-semibold leading-none tracking-tight ${className}`}
+    className={`text-xl font-bold leading-none tracking-tight text-brand-secondary ${className}`}
     {...props}
   >
     {children}
@@ -42,7 +42,7 @@ const CardDescription = React.forwardRef(
     ({ className, children, ...props }, ref) => (
   <p
     ref={ref}
-    className={`text-sm text-muted-foreground ${className}`} // Assuming text-muted-foreground is defined or use gray-500
+    className={`text-sm text-brand-secondary-light ${className}`}
     {...props}
   >
     {children}

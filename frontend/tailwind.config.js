@@ -7,22 +7,55 @@ module.exports = {
   ],
   theme: {
     extend: {
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-conic':
-          'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-      },
-      // Example primary color for the project based on 0.png (can be adjusted)
       colors: {
-        'brand-primary': '#007AFF', // A blue often used, adjust if specific blue from 0.png
-        'brand-secondary': '#4B5563', // A gray for text or secondary elements
-        'brand-accent': '#FF9500', // An orange/yellow for accents, adjust from 0.png
-        'brand-background': '#F9FAFB', // Light gray background
-        'brand-surface': '#FFFFFF', // White for cards, surfaces
+        brand: {
+          primary: {
+            DEFAULT: '#007AFF', // The main blue
+            light: '#E6F2FF',   // A lighter shade for backgrounds, highlights
+            dark: '#005ECC',    // A darker shade for hover states
+          },
+          secondary: {
+            DEFAULT: '#4A4A4A', // Dark gray for primary text
+            light: '#6B7280',   // Lighter gray for secondary text
+          },
+          background: '#F7F8FA', // Light gray page background
+          surface: '#FFFFFF',     // White for cards
+        },
+        status: {
+            success: {
+                DEFAULT: '#28a745', // Green
+                light: '#D4EDDA',
+            },
+            danger: {
+                DEFAULT: '#dc3545', // Red
+                light: '#F8D7DA',
+            },
+            warning: {
+                DEFAULT: '#ffc107', // Yellow
+                light: '#FFF3CD',
+            },
+            info: {
+                DEFAULT: '#17a2b8', // Teal/Info
+                light: '#D1ECF1',
+            }
+        }
+      },
+      fontFamily: {
+        // Assuming Vazirmatn is a good choice for Persian font.
+        // It needs to be imported in the layout file (e.g., from Google Fonts).
+        sans: ['Vazirmatn', 'sans-serif'],
+      },
+      borderRadius: {
+        'lg': '0.75rem', // Slightly larger rounded corners
+        'xl': '1rem',
+      },
+      boxShadow: {
+        'card': '0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07)',
+        'card-hover': '0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.07)',
       }
     },
   },
   plugins: [
-    require('@tailwindcss/forms'), // Common plugin for better default form styling
+    require('@tailwindcss/forms'),
   ],
 };

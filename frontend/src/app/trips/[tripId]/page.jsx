@@ -147,12 +147,12 @@ export default function TripDetailsPage() {
             {/* Live Map Section */}
             <div className="mb-8">
                 <h3 className="text-xl font-semibold mb-3">موقعیت لحظه‌ای راننده</h3>
-                <div className="h-[400px] w-full rounded-lg overflow-hidden border">
+                <div className="h-[300px] md:h-[400px] w-full rounded-lg overflow-hidden border">
                     <LiveTripMap tripDetails={tripDetails} />
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-6">
                 {/* Left Column: Seat Picker and Chat */}
                 <div className="lg:col-span-3 space-y-8">
                     <SeatPicker
@@ -161,14 +161,13 @@ export default function TripDetailsPage() {
               onSeatSelect={handleSeatSelect}
             />
                     {isAuthenticated && (
-                        <div>
-                             <h3 className="text-xl font-semibold mb-3">گفتگو با راننده و سایر مسافران</h3>
+                        <div className="lg:hidden"> {/* Show chat below on smaller screens */}
+                             <h3 className="text-xl font-semibold mb-3">گفتگو با راننده و سایر مسافran</h3>
                             <ChatBox tripId={parseInt(tripId, 10)} />
                         </div>
                     )}
                 </div>
 
-                 {/* Right Column: Trip Info and Booking Summary */}
                  <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardHeader>

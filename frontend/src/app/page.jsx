@@ -83,23 +83,24 @@ export default function HomePage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <header className="mb-8 text-center">
-        {/* Optional: Add logo or branding here */}
-        <h1 className="text-4xl font-bold text-brand-primary">سامانه رزرو آنلاین خودرو</h1>
-        <p className="text-lg text-gray-600 mt-2">سفر خود را به راحتی جستجو و رزرو کنید.</p>
+      <header className="mb-12 text-center">
+        <h1 className="text-4xl lg:text-5xl font-extrabold text-brand-secondary">سفر خود را پیدا کنید</h1>
+        <p className="text-lg text-brand-secondary-light mt-3 max-w-2xl mx-auto">ساده‌ترین راه برای رزرو آنلاین بلیط اتوبوس و سفر در سراسر ایران</p>
       </header>
 
+      <div className="max-w-4xl mx-auto">
+        <SearchForm onSearch={performSearch} isLoading={isLoadingSearch} />
+      </div>
+
       {!isAuthenticated && (
-        <div className="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-md text-center">
-          <p className="text-blue-700">
+        <div className="mt-8 p-4 bg-brand-primary-light border border-brand-primary/20 rounded-xl text-center">
+          <p className="text-brand-primary-dark">
             برای دسترسی به تمامی امکانات و رزرو سفر، لطفاً{' '}
-            <Link href="/login" className="font-semibold text-brand-primary hover:underline">وارد شوید</Link> یا{' '}
-            <Link href="/register" className="font-semibold text-brand-primary hover:underline">ثبت‌نام کنید</Link>.
+            <Link href="/login" className="font-bold hover:underline">وارد شوید</Link> یا{' '}
+            <Link href="/register" className="font-bold hover:underline">ثبت‌نام کنید</Link>.
           </p>
         </div>
       )}
-
-      <SearchForm onSearch={performSearch} isLoading={isLoadingSearch} />
 
       {isLoadingSearch && (
         <div className="mt-8 flex justify-center">
@@ -120,9 +121,9 @@ export default function HomePage() {
       )}
 
       {trips.length > 0 && !isLoadingSearch && (
-        <div className="mt-8">
-          <h2 className="text-2xl font-semibold mb-6 text-gray-700">نتایج جستجو:</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold mb-6 text-center text-brand-secondary">نتایج جستجو:</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {trips.map(trip => (
               <TripCard key={trip.id} trip={trip} />
             ))}
